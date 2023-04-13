@@ -88,17 +88,16 @@ class GatorTaxi:
             # Update the new_tripDuration in the RBTree node
             rb_node.tripDuration = new_trip_duration
 
-            # Update the corresponding minheap node
-            self.min_heap.update_trip_duration(rb_node.min_heap_node, new_trip_duration)
+            # Update the corresponding min heap node
+            self.min_heap.update_heap_node(rb_node.min_heap_node, rb_node.rideCost, rb_node.tripDuration)
 
         elif rb_node.tripDuration < new_trip_duration <= (2 * rb_node.tripDuration):
             # Update the rideCost and tripDuration in the RBTree node
             rb_node.rideCost += 10  # Add a penalty of 10 on rideCost
             rb_node.tripDuration = new_trip_duration
 
-            # Update the corresponding minheap node
-            self.min_heap.increase_key(rb_node.min_heap_node, rb_node.rideCost)
-            self.min_heap.update_trip_duration(rb_node.min_heap_node, new_trip_duration)
+            # Update the corresponding min heap node
+            self.min_heap.update_heap_node(rb_node.min_heap_node, rb_node.rideCost, rb_node.tripDuration)
 
         else:
             # Ride should be declined
@@ -130,7 +129,7 @@ if __name__ == '__main__':
             # Parse the command and arguments from the line
             command = line.strip().split('(')[0]
             args = line.strip().split('(')[1].replace(')', '').split(',')
-            
+
             # Execute the appropriate function based on the command
             if command == 'Insert':
                 ride_number = int(args[0])

@@ -1,79 +1,3 @@
-# class MinHeapNode:
-#     def __init__(self, rideNumber, rideCost, tripDuration, rbt_node = None):
-#         self.rideNumber = rideNumber
-#         self.rideCost = rideCost
-#         self.tripDuration = tripDuration
-#         self.rbt_node = rbt_node
-
-# class MinHeap:
-#     def __init__(self):
-#         self.heap = []
-
-#     def parent(self, i):
-#         return (i - 1) // 2
-
-#     def left(self, i):
-#         return 2 * i + 1
-
-#     def right(self, i):
-#         return 2 * i + 2
-
-#     def get_min(self):
-#         if len(self.heap) == 0:
-#             return None
-#         return self.heap[0]
-
-#     def insert(self, node):
-#         self.heap.append(node)
-#         i = len(self.heap) - 1
-#         while i != 0 and self.heap[self.parent(i)].rideCost > self.heap[i].rideCost:
-#             self.heap[self.parent(i)], self.heap[i] = self.heap[i], self.heap[self.parent(i)]
-#             i = self.parent(i)
-#         while i != 0 and self.heap[self.parent(i)].rideCost == self.heap[i].rideCost and self.heap[self.parent(i)].tripDuration > self.heap[i].tripDuration:
-#             self.heap[self.parent(i)], self.heap[i] = self.heap[i], self.heap[self.parent(i)]
-#             i = self.parent(i)
-
-#     def heapify(self, i):
-#         l = self.left(i)
-#         r = self.right(i)
-#         smallest = i
-#         if l < len(self.heap) and self.heap[l].rideCost < self.heap[smallest].rideCost:
-#             smallest = l
-#         if l < len(self.heap) and self.heap[l].rideCost == self.heap[smallest].rideCost and self.heap[l].tripDuration < self.heap[smallest].tripDuration:
-#             smallest = l
-#         if r < len(self.heap) and self.heap[r].rideCost < self.heap[smallest].rideCost:
-#             smallest = r
-#         if r < len(self.heap) and self.heap[r].rideCost == self.heap[smallest].rideCost and self.heap[r].tripDuration < self.heap[smallest].tripDuration:
-#             smallest = r
-#         if smallest != i:
-#             self.heap[i], self.heap[smallest] = self.heap[smallest], self.heap[i]
-#             self.heapify(smallest)
-
-#     def extract_min(self):
-#         if len(self.heap) == 0:
-#             return None
-#         root = self.heap[0]
-#         self.heap[0] = self.heap[-1]
-#         self.heap.pop()
-#         self.heapify(0)
-#         return root
-
-#     def decrease_key(self, i, key):
-#         self.heap[i].rideCost = key
-#         while i != 0 and self.heap[self.parent(i)].rideCost > self.heap[i].rideCost:
-#             self.heap[self.parent(i)], self.heap[i] = self.heap[i], self.heap[self.parent(i)]
-#             i = self.parent(i)
-#         while i != 0 and self.heap[self.parent(i)].rideCost == self.heap[i].rideCost and self.heap[self.parent(i)].tripDuration > self.heap[i].tripDuration:
-#             self.heap[self.parent(i)], self.heap[i] = self.heap[i], self.heap[self.parent(i)]
-#             i = self.parent(i)
-
-#     def delete_node(self, node):
-#         for i in range(len(self.heap)):
-#             if self.heap[i] == node:
-#                 self.decrease_key(i, float("-inf"))
-#                 self.extract_min()
-#                 return
-
 class MinHeapNode:
     def __init__(self, rideNumber, rideCost, tripDuration, rbt_node=None):
         self.rideNumber = rideNumber
@@ -89,109 +13,139 @@ class MinHeapNode:
 
 class MinHeap:
     def __init__(self):
+        # Initialize an empty heap and a dictionary to store nodes and their indices in the heap
         self.heap = []
         self.node_map = {}
 
+    # Calculate parent index
     @staticmethod
     def parent(i):
         return (i - 1) // 2
 
+    # Calculate left child index
     @staticmethod
     def left(i):
         return 2 * i + 1
 
+    # Calculate right child index
     @staticmethod
     def right(i):
         return 2 * i + 2
 
+    # Insert a new node into the heap
     def insert(self, node):
+        # Append the node to the end of the heap
         self.heap.append(node)
-        self.node_map[node] = len(self.heap) - 1
-        # print("MAP: ", self.node_map)
-        self._bubble_up(len(self.heap) - 1)
 
+        # Add the node to the node_map with its index as the value
+        self.node_map[node] = len(self.heap) - 1
+
+        # Move the appended node up the heap if its value is less than its parent's value
+        self.bubble_up(len(self.heap) - 1)
+
+    # Heapify the heap starting from node i downwards
     def heapify(self, i):
         smallest = i
+        # Check and assign smallest to the index among the current, left and right
         l, r = self.left(i), self.right(i)
-        if l < len(self.heap) and self._is_less_than(l, smallest):
+        if l < len(self.heap) and self.is_less_than(l, smallest):
             smallest = l
-        if r < len(self.heap) and self._is_less_than(r, smallest):
+        if r < len(self.heap) and self.is_less_than(r, smallest):
             smallest = r
+
+        # If the value of node i is not the smallest, swap it with the smallest child node
         if smallest != i:
-            self._swap_nodes(i, smallest)
+            self.swap_nodes(i, smallest)
+            # Continue heapify operation until the current node is the smallest among current, left and right
             self.heapify(smallest)
 
+    # Extract the minimum node from the heap
     def extract_min(self):
         if len(self.heap) == 0:
             return None
+
+        # Get the root node (minimum value) of the heap
         root = self.heap[0]
         del self.node_map[root]
+
         if len(self.heap) > 1:
+            # Replace the root node with the last node in the heap and heapify
             self.heap[0] = self.heap.pop()
             self.node_map[self.heap[0]] = 0
             self.heapify(0)
         else:
+            # If the heap contains only one node, remove it from the heap
             self.heap.pop()
         return root
 
-    def decrease_key(self, node, new_cost):
-        if new_cost >= node.rideCost:
-            return
-        node.rideCost = new_cost
-        self._bubble_up(self.node_map[node])
-
-    def increase_key(self, node, new_cost):
-        if new_cost <= node.rideCost:
-            return
-        node.rideCost = new_cost
-        self.heapify(self.node_map[node])
-
+    # Delete an arbitrary node from the heap
     def delete_node(self, node):
         if node not in self.node_map:
             return
 
-        # print("MAP: ", self.node_map)
         i = self.node_map[node]
         del self.node_map[node]
-        # print("MAP: ", self.node_map)
+
+        # If the node is the last element in the heap, pop it
         if i == len(self.heap) - 1:
             self.heap.pop()
+
+        # Otherwise replace the node with the last element in the heap
         else:
             self.heap[i] = self.heap.pop()
             self.node_map[self.heap[i]] = i
-            if self._is_less_than(i, self.parent(i)):
-                self._bubble_up(i)
+
+            # Heapify or bubble-up as necessary
+            if self.is_less_than(i, self.parent(i)):
+                self.bubble_up(i)
             else:
                 self.heapify(i)
 
-    def _is_less_than(self, i, j):
+    # Compare the rideCost of the two nodes
+    def is_less_than(self, i, j):
+        # Return true if the rideCost of i is smaller than the rideCost of j
         if self.heap[i].rideCost < self.heap[j].rideCost:
             return True
+
+        # If the rideCost of i and j is same, break the tie using tripDuration
         elif self.heap[i].rideCost == self.heap[j].rideCost:
             return self.heap[i].tripDuration < self.heap[j].tripDuration
         return False
 
-    def _swap_nodes(self, i, j):
+    # Swap the nodes at the given indices
+    def swap_nodes(self, i, j):
         self.node_map[self.heap[i]] = j
         self.node_map[self.heap[j]] = i
         self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
 
-    def _bubble_up(self, i):
-        while i > 0 and self._is_less_than(i, self.parent(i)):
-            self._swap_nodes(i, self.parent(i))
+    # Move up the heap until its parent node is smaller than itself
+    def bubble_up(self, i):
+        while i > 0 and self.is_less_than(i, self.parent(i)):
+            self.swap_nodes(i, self.parent(i))
             i = self.parent(i)
 
+    # To print the heap
     def print_heap(self):
         print(self.heap)
 
-    def update_trip_duration(self, node, new_duration):
+    # To update the given node with new info
+    def update_heap_node(self, node, new_cost, new_duration):
         if node not in self.node_map:
             return
+
+        # Update rideCost and tripDuration
+        node.rideCost = new_cost
         node.tripDuration = new_duration
+
         i = self.node_map[node]
+        # If the current node is the root of the heap, heapify it
         if i == 0:
             self.heapify(i)
-        elif self._is_less_than(i, self.parent(i)):
-            self._bubble_up(i)
+
+        # Bubble up if the current node is smaller than its parent
+        elif self.is_less_than(i, self.parent(i)):
+            self.bubble_up(i)
+
+        # Otherwise heapify it
         else:
             self.heapify(i)
